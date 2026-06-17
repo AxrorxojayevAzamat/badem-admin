@@ -1,0 +1,9 @@
+<div class="modal-overlay" (click)="close()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">{{ title() }}</h2>
+      <button class="modal-close" (click)="close()" aria-label="Close">&times;</button>
+    </div>
+    <ng-content />
+  </div>
+</div>

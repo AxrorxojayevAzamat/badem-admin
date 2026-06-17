@@ -1,9 +1,9 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import { ApiService } from '../../core/services/api.service';
-import { AuthService } from '../../core/services/auth.service';
-import { Product, Page } from '../../core/models';
-import { ProductFormComponent } from './product-form.component';
+import { ApiService } from '../../../core/services/api.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { Product, Page } from '../../../core/models';
+import { ProductFormComponent } from '../product-form/product-form.component';
 
 @Component({
   selector: 'app-products-list',

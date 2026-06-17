@@ -1,14 +1,15 @@
-import { Component, inject, signal, input, OnInit } from '@angular/core';
-import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
-import { ApiService } from '../../core/services/api.service';
-import { Company } from '../../core/models';
+import { Component, ChangeDetectionStrategy, inject, signal, input, OnInit } from '@angular/core';
+import { ApiService } from '../../../core/services/api.service';
+import { Company } from '../../../core/models';
+import { CompanyFormComponent } from '../company-form/company-form.component';
 
 type CompanyType = 'stores' | 'distributors' | 'suppliers';
 
 @Component({
   selector: 'app-companies-list',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CompanyFormComponent],
   templateUrl: './companies-list.component.html',
   styleUrl: './companies-list.component.scss'
 })
@@ -23,14 +24,6 @@ export class CompaniesListComponent implements OnInit {
 
   showForm = signal(false);
   editingCompany = signal<Company | null>(null);
-  formLoading = signal(false);
-  formError = signal<string | null>(null);
-
-  form = new FormGroup({
-    name: new FormControl('', [Validators.required]),
-    address: new FormControl(''),
-    phone: new FormControl('')
-  });
 
   get label(): string {
     return this.type().replace(/s$/, '');
@@ -61,15 +54,11 @@ export class CompaniesListComponent implements OnInit {
 
   openCreate() {
     this.editingCompany.set(null);
-    this.form.reset();
-    this.formError.set(null);
     this.showForm.set(true);
   }
 
   openEdit(company: Company) {
     this.editingCompany.set(company);
-    this.form.patchValue({ name: company.name, address: company.address ?? '', phone: company.phone ?? '' });
-    this.formError.set(null);
     this.showForm.set(true);
   }
 
@@ -78,30 +67,9 @@ export class CompaniesListComponent implements OnInit {
     this.editingCompany.set(null);
   }
 
-  submit() {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-    this.formLoading.set(true);
-    this.formError.set(null);
-    const body = this.form.value;
-    const editing = this.editingCompany();
-    const req = editing
-      ? this.api.patch(`/${this.type()}/${editing.id}`, body)
-      : this.api.post(`/${this.type()}`, body);
-
-    req.subscribe({
-      next: () => {
-        this.formLoading.set(false);
-        this.closeForm();
-        this.load();
-      },
-      error: (err) => {
-        this.formLoading.set(false);
-        this.formError.set(err?.error?.message ?? 'Failed to save');
-      }
-    });
+  onSaved() {
+    this.closeForm();
+    this.load();
   }
 
   delete(company: Company) {

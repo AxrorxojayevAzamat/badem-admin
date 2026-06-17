@@ -1,12 +1,13 @@
 import { Component, inject, signal, input, output, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
-import { ApiService } from '../../core/services/api.service';
-import { Product } from '../../core/models';
+import { ApiService } from '../../../core/services/api.service';
+import { Product } from '../../../core/models';
+import { ModalComponent } from '../../../shared/modal/modal.component';
 
 @Component({
   selector: 'app-product-form',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ModalComponent],
   templateUrl: './product-form.component.html',
   styleUrl: './product-form.component.scss'
 })

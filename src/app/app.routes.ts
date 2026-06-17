@@ -4,7 +4,7 @@ import { roleGuard } from './core/guards/role.guard';
 import { LoginComponent } from './features/login/login.component';
 import { LayoutComponent } from './features/layout/layout.component';
 import { UsersComponent } from './features/users/users.component';
-import { ProductsListComponent } from './features/products/products-list.component';
+import { ProductsListComponent } from './features/products/products-list/products-list.component';
 import { DistributorsComponent } from './features/distributors/distributors.component';
 import { StoresComponent } from './features/stores/stores.component';
 import { SuppliersComponent } from './features/suppliers/suppliers.component';

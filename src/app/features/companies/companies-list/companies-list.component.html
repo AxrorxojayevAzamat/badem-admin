@@ -1,0 +1,57 @@
+<div class="page">
+  <div class="page-header">
+    <h1 class="page-title">{{ title }}</h1>
+    <button class="btn btn-primary" (click)="openCreate()">+ New {{ label }}</button>
+  </div>
+
+  @if (error()) {
+    <div class="alert alert-error">{{ error() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="loading-state">Loading {{ type() }}...</div>
+  } @else if (companies().length === 0) {
+    <div class="empty-state">
+      <p>No {{ type() }} found</p>
+      <button class="btn btn-primary" (click)="openCreate()">Add your first {{ label }}</button>
+    </div>
+  } @else {
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Address</th>
+            <th>Phone</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (company of companies(); track company.id) {
+            <tr>
+              <td><strong>{{ company.name }}</strong></td>
+              <td class="text-muted">{{ company.address || '—' }}</td>
+              <td class="text-muted">{{ company.phone || '—' }}</td>
+              <td>
+                <div class="action-group">
+                  <button class="btn btn-sm btn-secondary" (click)="openEdit(company)">Edit</button>
+                  <button class="btn btn-sm btn-danger" (click)="delete(company)">Delete</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+@if (showForm()) {
+  <app-company-form
+    [type]="type()"
+    [label]="label"
+    [company]="editingCompany()"
+    (saved)="onSaved()"
+    (cancelled)="closeForm()"
+  />
+}

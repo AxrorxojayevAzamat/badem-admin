@@ -1,0 +1,32 @@
+<app-modal [title]="(company() ? 'Edit' : 'Create') + ' ' + label()" (closed)="cancelled.emit()">
+  @if (error()) {
+    <div class="alert alert-error">{{ error() }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="modal-body">
+    <div class="form-group">
+      <label for="c-name">Name <span class="required">*</span></label>
+      <input id="c-name" type="text" formControlName="name" [placeholder]="label() + ' name'" />
+      @if (form.get('name')?.invalid && form.get('name')?.touched) {
+        <span class="field-error">Name is required</span>
+      }
+    </div>
+
+    <div class="form-group">
+      <label for="c-address">Address</label>
+      <input id="c-address" type="text" formControlName="address" placeholder="Street address" />
+    </div>
+
+    <div class="form-group">
+      <label for="c-phone">Phone</label>
+      <input id="c-phone" type="tel" formControlName="phone" placeholder="+1 555 000 0000" />
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="cancelled.emit()">Cancel</button>
+      <button type="submit" class="btn btn-primary" [disabled]="loading()">
+        {{ loading() ? 'Saving...' : 'Save' }}
+      </button>
+    </div>
+  </form>
+</app-modal>
