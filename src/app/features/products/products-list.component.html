@@ -1,0 +1,167 @@
+<div class="page">
+  <div class="page-header">
+    <h1 class="page-title">Products</h1>
+    <button class="btn btn-primary" (click)="openCreate()">+ New Product</button>
+  </div>
+
+  @if (error()) {
+    <div class="alert alert-error">{{ error() }}</div>
+  }
+  @if (workflowError()) {
+    <div class="alert alert-error">{{ workflowError() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="loading-state">Loading products...</div>
+  } @else if (products().length === 0) {
+    <div class="empty-state">
+      <p>No products found</p>
+      <button class="btn btn-primary" (click)="openCreate()">Create your first product</button>
+    </div>
+  } @else {
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>SKU</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>State</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (product of products(); track product.id) {
+            <tr>
+              <td>
+                <strong>{{ product.name }}</strong>
+                @if (product.description) {
+                  <br/><small class="text-muted">{{ product.description }}</small>
+                }
+              </td>
+              <td class="text-muted">{{ product.sku }}</td>
+              <td>${{ product.price | number:'1.2-2' }}</td>
+              <td>{{ product.stock }}</td>
+              <td>
+                @if (product.state) {
+                  <span class="state-badge {{ stateClass(product.state) }}">
+                    {{ product.state?.replace('_', ' ') }}
+                  </span>
+                } @else {
+                  <span class="text-muted">—</span>
+                }
+              </td>
+              <td>
+                <div class="action-group">
+                  <button class="btn btn-sm btn-secondary" (click)="openEdit(product)">Edit</button>
+                  <button class="btn btn-sm btn-danger" (click)="delete(product)">Delete</button>
+
+                  @if (isSupplier()) {
+                    @if (!product.supplierId) {
+                      <button class="btn btn-sm btn-action"
+                        [disabled]="workflowLoading() === '/products/' + product.id + '/assign-supplier'"
+                        (click)="promptInput(product.id, 'supplierId')">
+                        Assign Supplier
+                      </button>
+                    }
+                    @if (product.state === 'returned') {
+                      <button class="btn btn-sm btn-action"
+                        [disabled]="workflowLoading() === '/products/' + product.id + '/accept-return'"
+                        (click)="doAction('/products/' + product.id + '/accept-return')">
+                        Accept Return
+                      </button>
+                    }
+                  }
+
+                  @if (isDistributor()) {
+                    @if (product.state === 'at_supplier') {
+                      <button class="btn btn-sm btn-action"
+                        [disabled]="workflowLoading() === '/products/' + product.id + '/give-to-distributor'"
+                        (click)="promptInput(product.id, 'distributorId')">
+                        Give to Distributor
+                      </button>
+                    }
+                    @if (product.state === 'at_distributor') {
+                      <button class="btn btn-sm btn-action"
+                        [disabled]="workflowLoading() === '/products/' + product.id + '/return-to-supplier'"
+                        (click)="doAction('/products/' + product.id + '/return-to-supplier')">
+                        Return to Supplier
+                      </button>
+                      <button class="btn btn-sm btn-action"
+                        [disabled]="workflowLoading() === '/products/' + product.id + '/accept-return'"
+                        (click)="doAction('/products/' + product.id + '/accept-return')">
+                        Accept Return
+                      </button>
+                    }
+                  }
+
+                  @if (isStore()) {
+                    @if (product.state === 'at_distributor') {
+                      <button class="btn btn-sm btn-action"
+                        [disabled]="workflowLoading() === '/products/' + product.id + '/accept-at-store'"
+                        (click)="promptInput(product.id, 'storeId')">
+                        Accept at Store
+                      </button>
+                    }
+                    @if (product.state === 'at_store') {
+                      <button class="btn btn-sm btn-action"
+                        [disabled]="workflowLoading() === '/products/' + product.id + '/mark-sold'"
+                        (click)="doAction('/products/' + product.id + '/mark-sold')">
+                        Mark Sold
+                      </button>
+                      <button class="btn btn-sm btn-action"
+                        [disabled]="workflowLoading() === '/products/' + product.id + '/return-to-distributor'"
+                        (click)="promptInput(product.id, 'reason')">
+                        Return to Distributor
+                      </button>
+                    }
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (totalPages() > 1) {
+      <div class="pagination">
+        <button class="btn btn-sm btn-secondary" [disabled]="page() === 1" (click)="goPage(page() - 1)">Previous</button>
+        <span class="pagination-info">Page {{ page() }} of {{ totalPages() }}</span>
+        <button class="btn btn-sm btn-secondary" [disabled]="page() === totalPages()" (click)="goPage(page() + 1)">Next</button>
+      </div>
+    }
+  }
+</div>
+
+@if (showForm()) {
+  <app-product-form
+    [product]="editingProduct()"
+    (saved)="onSaved()"
+    (cancelled)="closeForm()"
+  />
+}
+
+@if (workflowInput()) {
+  <div class="modal-overlay" (click)="cancelInput()">
+    <div class="modal modal-sm" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Enter {{ workflowInput()!.field }}</h2>
+        <button class="modal-close" (click)="cancelInput()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>{{ workflowInput()!.field }}</label>
+          <input type="text" [value]="workflowInputValue()"
+            (input)="workflowInputValue.set($any($event.target).value)"
+            placeholder="Enter ID or value" />
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="cancelInput()">Cancel</button>
+          <button class="btn btn-primary" (click)="confirmInput()">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
