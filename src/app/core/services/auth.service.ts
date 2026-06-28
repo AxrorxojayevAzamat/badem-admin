@@ -50,6 +50,15 @@ export class AuthService {
     );
   }
 
+  register(email: string, password: string, role: Role) {
+    return this.http.post<{ access_token: string }>('http://localhost:3000/auth/register', { email, password, role }).pipe(
+      tap(res => {
+        localStorage.setItem(this.TOKEN_KEY, res.access_token);
+        this.currentUser.set(this.decodeToken(res.access_token));
+      })
+    );
+  }
+
   logout() {
     localStorage.removeItem(this.TOKEN_KEY);
     this.currentUser.set(null);

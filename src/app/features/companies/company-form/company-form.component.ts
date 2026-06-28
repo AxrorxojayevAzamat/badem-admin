@@ -1,6 +1,9 @@
 import { Component, ChangeDetectionStrategy, inject, input, output, signal, effect } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
-import { ApiService } from '../../../core/services/api.service';
+import { CompanyService } from '../../../core/services/company.service';
+import { StoresService } from '../../../core/services/stores.service';
+import { DistributorsService } from '../../../core/services/distributors.service';
+import { SuppliersService } from '../../../core/services/suppliers.service';
 import { Company } from '../../../core/models';
 import { ModalComponent } from '../../../shared/modal/modal.component';
 
@@ -15,11 +18,22 @@ type CompanyType = 'stores' | 'distributors' | 'suppliers';
   styleUrl: './company-form.component.scss'
 })
 export class CompanyFormComponent {
-  private api = inject(ApiService);
+  private stores = inject(StoresService);
+  private distributors = inject(DistributorsService);
+  private suppliers = inject(SuppliersService);
 
   type = input.required<CompanyType>();
   label = input.required<string>();
   company = input<Company | null>(null);
+
+  private get service(): CompanyService {
+    const services: Record<CompanyType, CompanyService> = {
+      stores: this.stores,
+      distributors: this.distributors,
+      suppliers: this.suppliers
+    };
+    return services[this.type()];
+  }
 
   saved = output<void>();
   cancelled = output<void>();
@@ -55,8 +69,8 @@ export class CompanyFormComponent {
     const body = this.form.value;
     const editing = this.company();
     const req = editing
-      ? this.api.patch(`/${this.type()}/${editing.id}`, body)
-      : this.api.post(`/${this.type()}`, body);
+      ? this.service.update(editing.id, body)
+      : this.service.create(body);
 
     req.subscribe({
       next: () => {

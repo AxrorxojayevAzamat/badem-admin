@@ -1,52 +1,42 @@
-# KPI Dashboard
-
-Portfolio/demo project showcasing modern Angular: zoneless, signals-first, standalone.
-Audience for the code: senior Angular reviewers. Hold a high bar.
-
-## Stack
-- Angular 22 (standalone components only — there are NO NgModules in this repo)
-- Zoneless change detection (Zone.js is NOT installed)
-- Signals for all reactive state
-- TypeScript strict mode
-- Vitest for unit tests (or Karma/Jasmine if package.json says so — check first)
-
-## Commands
-- Dev server: `ng serve`
-- Unit tests: `ng test`
-- Single spec: `ng test --include='**/kpi-card.spec.ts'`
-- Lint: `ng lint`
-- Build: `ng build`
-- Always run `ng lint` and the relevant `ng test` after touching files with logic.
-
-## Project layout
-- `src/app/core/` — singleton services, signal stores, http resources
-- `src/app/features/<feature>/` — feature folders, each self-contained
-- `src/app/shared/` — reusable dumb components, pipes, directives
-- One component per file; kebab-case filenames (`kpi-card.component.ts`)
-
-## Hard rules (always)
-- Use `input()` / `output()` / `model()` functional APIs. NEVER `@Input()` / `@Output()`.
-- Use `signal()`, `computed()`, `linkedSignal()` for state. Use `effect()` sparingly and only for side effects, never to sync state.
-- Prefer `httpResource()` over manual `HttpClient.subscribe()`.
-- Prefer Signal Forms over Reactive/Template forms.
-- `changeDetection: ChangeDetectionStrategy.OnPush` on every component (it's the v22 default, but set it explicitly).
-- Use the new control flow (`@if`, `@for`, `@switch`). NEVER `*ngIf` / `*ngFor`.
-- Components stay dumb. Business logic lives in signal-based services in `core/`.
-
-## Hard rules (never)
-- Don't add RxJS where a signal or `httpResource()` does the job. RxJS only for genuine event streams (e.g. `toSignal()` at a boundary).
-- Don't install Zone.js or reintroduce NgModules.
-- Don't rewrite or reformat files unrelated to the current task. A one-line fix touches one line.
-- Don't add dependencies without asking first.
-
-## Workflow expectations
-- For anything beyond a trivial edit: propose a short plan first, wait for my OK, then implement.
-- Make the smallest change that satisfies the request.
-- When you finish a unit of work, run tests/lint and report the result — don't claim it works without running it.
-
-## Detailed references (loaded on demand)
-@.claude/rules/signals-patterns.md
-@.claude/rules/testing.md
-@.claude/rules/git-workflow.md
-
-For architecture and the live task list, see @docs/architecture.md (read it before adding features).
+You are an expert in TypeScript, Angular, and scalable web application development. You write functional, maintainable, performant, and accessible code following Angular and TypeScript best practices.
+## TypeScript Best Practices
+- Use strict type checking
+- Prefer type inference when the type is obvious
+- Avoid the `any` type; use `unknown` when type is uncertain
+## Angular Best Practices
+- Always use standalone components over NgModules
+- Must NOT set `standalone: true` inside Angular decorators. It's the default in Angular v20+.
+- Do NOT set `changeDetection: ChangeDetectionStrategy.OnPush` explicitly. `OnPush` is the default in Angular v22+.
+- Use signals for state management
+- Implement lazy loading for feature routes
+- Do NOT use the `@HostBinding` and `@HostListener` decorators. Put host bindings inside the `host` object of the `@Component` or `@Directive` decorator instead
+- Use `NgOptimizedImage` for all static images.
+  - `NgOptimizedImage` does not work for inline base64 images.
+## Accessibility Requirements
+- It MUST pass all AXE checks.
+- It MUST follow all WCAG AA minimums, including focus management, color contrast, and ARIA attributes.
+### Components
+- Keep components small and focused on a single responsibility
+- Use `input()` and `output()` functions instead of decorators
+- Use `computed()` for derived state
+- Prefer inline templates for small components
+- Prefer Signal Forms (`@angular/forms/signals`) for new forms. They are stable in Angular v22+ and provide signal-based state, type-safe field access, and schema-based validation
+- When not using Signal Forms, prefer Reactive forms instead of Template-driven ones
+- Do NOT use `ngClass`, use `class` bindings instead
+- Do NOT use `ngStyle`, use `style` bindings instead
+- When using external templates/styles, use paths relative to the component TS file.
+## State Management
+- Use signals for local component state
+- Use `computed()` for derived state
+- Keep state transformations pure and predictable
+- Do NOT use `mutate` on signals, use `update` or `set` instead
+## Templates
+- Keep templates simple and avoid complex logic
+- Use native control flow (`@if`, `@for`, `@switch`) instead of `*ngIf`, `*ngFor`, `*ngSwitch`
+- Use the async pipe to handle observables
+- Do not assume globals like (`new Date()`) are available.
+## Services
+- Design services around a single responsibility
+- Use the `providedIn: 'root'` option for singleton services
+- Prefer the `@Service` decorator over `@Injectable({providedIn: 'root'})` for new singleton services (Angular v22+)
+- Use the `inject()` function instead of constructor injection

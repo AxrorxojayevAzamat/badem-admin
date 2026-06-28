@@ -1,6 +1,7 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import { ApiService } from '../../../core/services/api.service';
+import { Observable } from 'rxjs';
+import { ProductsService } from '../../../core/services/products.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Product, Page } from '../../../core/models';
 import { ProductFormComponent } from '../product-form/product-form.component';
@@ -13,7 +14,7 @@ import { ProductFormComponent } from '../product-form/product-form.component';
   styleUrl: './products-list.component.scss'
 })
 export class ProductsListComponent implements OnInit {
-  private api = inject(ApiService);
+  private productsService = inject(ProductsService);
   auth = inject(AuthService);
 
   products = signal<Product[]>([]);
@@ -44,7 +45,7 @@ export class ProductsListComponent implements OnInit {
   loadProducts() {
     this.loading.set(true);
     this.error.set(null);
-    this.api.get<Page<Product> | Product[]>('/products', { page: this.page(), limit: this.limit() }).subscribe({
+    this.productsService.list(this.page(), this.limit()).subscribe({
       next: (res) => {
         this.loading.set(false);
         if (Array.isArray(res)) {
@@ -84,16 +85,20 @@ export class ProductsListComponent implements OnInit {
 
   delete(product: Product) {
     if (!confirm(`Delete "${product.name}"?`)) return;
-    this.api.delete(`/products/${product.id}`).subscribe({
+    this.productsService.delete(product.id).subscribe({
       next: () => this.loadProducts(),
       error: (err) => this.error.set(err?.error?.message ?? 'Failed to delete')
     });
   }
 
-  doAction(path: string, body: unknown = {}) {
-    this.workflowLoading.set(path);
+  isActionLoading(productId: string, action: string): boolean {
+    return this.workflowLoading() === `${productId}/${action}`;
+  }
+
+  private runAction(productId: string, action: string, request: Observable<Product>) {
+    this.workflowLoading.set(`${productId}/${action}`);
     this.workflowError.set(null);
-    this.api.patch(path, body).subscribe({
+    request.subscribe({
       next: () => {
         this.workflowLoading.set(null);
         this.loadProducts();
@@ -103,6 +108,18 @@ export class ProductsListComponent implements OnInit {
         this.workflowError.set(err?.error?.message ?? 'Action failed');
       }
     });
+  }
+
+  acceptReturn(product: Product) {
+    this.runAction(product.id, 'accept-return', this.productsService.acceptReturn(product.id));
+  }
+
+  returnToSupplier(product: Product) {
+    this.runAction(product.id, 'return-to-supplier', this.productsService.returnToSupplier(product.id));
+  }
+
+  markSold(product: Product) {
+    this.runAction(product.id, 'mark-sold', this.productsService.markSold(product.id));
   }
 
   promptInput(productId: string, field: string) {
@@ -115,23 +132,25 @@ export class ProductsListComponent implements OnInit {
     if (!wi) return;
     const val = this.workflowInputValue().trim();
     if (!val) return;
-    const body: Record<string, string> = { [wi.field]: val };
-    this.doAction(`/products/${wi.productId}/${this.actionPathForField(wi.field)}`, body);
     this.workflowInput.set(null);
+    switch (wi.field) {
+      case 'supplierId':
+        this.runAction(wi.productId, 'assign-supplier', this.productsService.assignSupplier(wi.productId, val));
+        break;
+      case 'distributorId':
+        this.runAction(wi.productId, 'give-to-distributor', this.productsService.giveToDistributor(wi.productId, val));
+        break;
+      case 'storeId':
+        this.runAction(wi.productId, 'accept-at-store', this.productsService.acceptAtStore(wi.productId, val));
+        break;
+      case 'reason':
+        this.runAction(wi.productId, 'return-to-distributor', this.productsService.returnToDistributor(wi.productId, val));
+        break;
+    }
   }
 
   cancelInput() {
     this.workflowInput.set(null);
-  }
-
-  private actionPathForField(field: string): string {
-    const map: Record<string, string> = {
-      supplierId: 'assign-supplier',
-      distributorId: 'give-to-distributor',
-      storeId: 'accept-at-store',
-      reason: 'return-to-distributor'
-    };
-    return map[field] ?? field;
   }
 
   goPage(p: number) {

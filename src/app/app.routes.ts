@@ -2,8 +2,9 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
 import { LoginComponent } from './features/login/login.component';
+import { RegisterComponent } from './features/register/register.component';
 import { LayoutComponent } from './features/layout/layout.component';
-import { UsersComponent } from './features/users/users.component';
+import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { ProductsListComponent } from './features/products/products-list/products-list.component';
 import { DistributorsComponent } from './features/distributors/distributors.component';
 import { StoresComponent } from './features/stores/stores.component';
@@ -11,17 +12,12 @@ import { SuppliersComponent } from './features/suppliers/suppliers.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
   {
     path: '',
     component: LayoutComponent,
     canActivate: [authGuard],
     children: [
-      {
-        path: 'users',
-        component: UsersComponent,
-        canActivate: [roleGuard],
-        data: { roles: ['admin'] }
-      },
       {
         path: 'products',
         component: ProductsListComponent,
@@ -46,7 +42,8 @@ export const routes: Routes = [
         canActivate: [roleGuard],
         data: { roles: ['moderator'] }
       },
-      { path: '', redirectTo: 'products', pathMatch: 'full' }
+      { path: 'dashboard', component: DashboardComponent },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
   { path: '**', redirectTo: 'login' }

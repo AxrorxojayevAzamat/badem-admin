@@ -1,0 +1,132 @@
+<div class="dashboard">
+  <header class="dashboard-header">
+    <div>
+      <h1 class="dashboard-title">Dashboard</h1>
+      <p class="dashboard-sub">Welcome back, {{ auth.currentUser()?.email }}</p>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="dashboard-loading" aria-live="polite" aria-busy="true">
+      <div class="spinner" aria-hidden="true"></div>
+      <span>Loading dashboard data…</span>
+    </div>
+  } @else if (error()) {
+    <div class="alert alert-error" role="alert">{{ error() }}</div>
+  } @else {
+    <section class="kpi-grid" aria-label="Key metrics">
+      @for (card of kpiCards(); track card.label) {
+        <article class="kpi-card" [class]="'kpi-card--' + card.color">
+          <div class="kpi-value">
+            @if (card.label === 'Inventory Value') {
+              ${{ card.value | number: '1.0-0' }}
+            } @else {
+              {{ card.value | number }}
+            }
+          </div>
+          <div class="kpi-label">{{ card.label }}</div>
+          @if (card.sub) {
+            <div class="kpi-sub">{{ card.sub }}</div>
+          }
+        </article>
+      }
+    </section>
+
+    <div class="dashboard-grid">
+      <section class="panel" aria-labelledby="pipeline-heading">
+        <h2 class="panel-title" id="pipeline-heading">Product Pipeline</h2>
+        <ul class="state-list" role="list">
+          @for (row of stateRows(); track row.key) {
+            <li class="state-row">
+              <span class="state-label">{{ row.label }}</span>
+              <div class="state-bar-wrap" role="progressbar" [attr.aria-valuenow]="row.pct" aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="row.label + ': ' + row.pct + '%'">
+                <div class="state-bar" [class]="'state-bar--' + row.key" [style.width.%]="row.pct"></div>
+              </div>
+              <span class="state-count">{{ row.count | number }}</span>
+            </li>
+          }
+        </ul>
+      </section>
+
+      <section class="panel" aria-labelledby="recent-heading">
+        <h2 class="panel-title" id="recent-heading">Recent Products</h2>
+        @if (products().length === 0) {
+          <p class="empty">No products found.</p>
+        } @else {
+          <ul class="product-list" role="list">
+            @for (p of products().slice(0, 8); track p.id) {
+              <li class="product-row">
+                <span class="product-name">{{ p.name }}</span>
+                <span class="product-sku">{{ p.sku }}</span>
+                <span class="product-stock">{{ p.stock | number }} units</span>
+                <span class="product-price">${{ p.price | number: '1.2-2' }}</span>
+              </li>
+            }
+          </ul>
+          @if (products().length > 8) {
+            <a routerLink="/products" class="view-all">View all {{ products().length | number }} products →</a>
+          }
+        }
+      </section>
+
+      @if (isModerator() || isAdmin()) {
+        <section class="panel" aria-labelledby="stores-heading">
+          <h2 class="panel-title" id="stores-heading">Stores
+            <span class="panel-count">{{ stores().length | number }}</span>
+          </h2>
+          <ul class="company-list" role="list">
+            @for (s of stores().slice(0, 6); track s.id) {
+              <li class="company-row">
+                <span class="company-name">{{ s.name }}</span>
+                @if (s.phone) { <span class="company-meta">{{ s.phone }}</span> }
+              </li>
+            } @empty {
+              <li class="empty">No stores yet.</li>
+            }
+          </ul>
+          @if (stores().length > 6) {
+            <a routerLink="/stores" class="view-all">View all {{ stores().length | number }} stores →</a>
+          }
+        </section>
+
+        <section class="panel" aria-labelledby="distributors-heading">
+          <h2 class="panel-title" id="distributors-heading">Distributors
+            <span class="panel-count">{{ distributors().length | number }}</span>
+          </h2>
+          <ul class="company-list" role="list">
+            @for (d of distributors().slice(0, 6); track d.id) {
+              <li class="company-row">
+                <span class="company-name">{{ d.name }}</span>
+                @if (d.phone) { <span class="company-meta">{{ d.phone }}</span> }
+              </li>
+            } @empty {
+              <li class="empty">No distributors yet.</li>
+            }
+          </ul>
+          @if (distributors().length > 6) {
+            <a routerLink="/distributors" class="view-all">View all {{ distributors().length | number }} distributors →</a>
+          }
+        </section>
+
+        <section class="panel" aria-labelledby="suppliers-heading">
+          <h2 class="panel-title" id="suppliers-heading">Suppliers
+            <span class="panel-count">{{ suppliers().length | number }}</span>
+          </h2>
+          <ul class="company-list" role="list">
+            @for (s of suppliers().slice(0, 6); track s.id) {
+              <li class="company-row">
+                <span class="company-name">{{ s.name }}</span>
+                @if (s.phone) { <span class="company-meta">{{ s.phone }}</span> }
+              </li>
+            } @empty {
+              <li class="empty">No suppliers yet.</li>
+            }
+          </ul>
+          @if (suppliers().length > 6) {
+            <a routerLink="/suppliers" class="view-all">View all {{ suppliers().length | number }} suppliers →</a>
+          }
+        </section>
+      }
+    </div>
+  }
+</div>

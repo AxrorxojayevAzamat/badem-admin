@@ -1,5 +1,8 @@
 import { Component, ChangeDetectionStrategy, inject, signal, input, OnInit } from '@angular/core';
-import { ApiService } from '../../../core/services/api.service';
+import { CompanyService } from '../../../core/services/company.service';
+import { StoresService } from '../../../core/services/stores.service';
+import { DistributorsService } from '../../../core/services/distributors.service';
+import { SuppliersService } from '../../../core/services/suppliers.service';
 import { Company } from '../../../core/models';
 import { CompanyFormComponent } from '../company-form/company-form.component';
 
@@ -14,9 +17,20 @@ type CompanyType = 'stores' | 'distributors' | 'suppliers';
   styleUrl: './companies-list.component.scss'
 })
 export class CompaniesListComponent implements OnInit {
-  private api = inject(ApiService);
+  private stores = inject(StoresService);
+  private distributors = inject(DistributorsService);
+  private suppliers = inject(SuppliersService);
 
   type = input.required<CompanyType>();
+
+  private get service(): CompanyService {
+    const services: Record<CompanyType, CompanyService> = {
+      stores: this.stores,
+      distributors: this.distributors,
+      suppliers: this.suppliers
+    };
+    return services[this.type()];
+  }
 
   companies = signal<Company[]>([]);
   loading = signal(true);
@@ -40,10 +54,10 @@ export class CompaniesListComponent implements OnInit {
   load() {
     this.loading.set(true);
     this.error.set(null);
-    this.api.get<Company[] | any>(`/${this.type()}`).subscribe({
-      next: (res) => {
+    this.service.list().subscribe({
+      next: (companies) => {
         this.loading.set(false);
-        this.companies.set(Array.isArray(res) ? res : (res.data ?? []));
+        this.companies.set(companies);
       },
       error: (err) => {
         this.loading.set(false);
@@ -74,7 +88,7 @@ export class CompaniesListComponent implements OnInit {
 
   delete(company: Company) {
     if (!confirm(`Delete "${company.name}"?`)) return;
-    this.api.delete(`/${this.type()}/${company.id}`).subscribe({
+    this.service.delete(company.id).subscribe({
       next: () => this.load(),
       error: (err) => this.error.set(err?.error?.message ?? 'Failed to delete')
     });

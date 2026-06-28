@@ -60,15 +60,15 @@
                   @if (isSupplier()) {
                     @if (!product.supplierId) {
                       <button class="btn btn-sm btn-action"
-                        [disabled]="workflowLoading() === '/products/' + product.id + '/assign-supplier'"
+                        [disabled]="isActionLoading(product.id, 'assign-supplier')"
                         (click)="promptInput(product.id, 'supplierId')">
                         Assign Supplier
                       </button>
                     }
                     @if (product.state === 'returned') {
                       <button class="btn btn-sm btn-action"
-                        [disabled]="workflowLoading() === '/products/' + product.id + '/accept-return'"
-                        (click)="doAction('/products/' + product.id + '/accept-return')">
+                        [disabled]="isActionLoading(product.id, 'accept-return')"
+                        (click)="acceptReturn(product)">
                         Accept Return
                       </button>
                     }
@@ -77,20 +77,20 @@
                   @if (isDistributor()) {
                     @if (product.state === 'at_supplier') {
                       <button class="btn btn-sm btn-action"
-                        [disabled]="workflowLoading() === '/products/' + product.id + '/give-to-distributor'"
+                        [disabled]="isActionLoading(product.id, 'give-to-distributor')"
                         (click)="promptInput(product.id, 'distributorId')">
                         Give to Distributor
                       </button>
                     }
                     @if (product.state === 'at_distributor') {
                       <button class="btn btn-sm btn-action"
-                        [disabled]="workflowLoading() === '/products/' + product.id + '/return-to-supplier'"
-                        (click)="doAction('/products/' + product.id + '/return-to-supplier')">
+                        [disabled]="isActionLoading(product.id, 'return-to-supplier')"
+                        (click)="returnToSupplier(product)">
                         Return to Supplier
                       </button>
                       <button class="btn btn-sm btn-action"
-                        [disabled]="workflowLoading() === '/products/' + product.id + '/accept-return'"
-                        (click)="doAction('/products/' + product.id + '/accept-return')">
+                        [disabled]="isActionLoading(product.id, 'accept-return')"
+                        (click)="acceptReturn(product)">
                         Accept Return
                       </button>
                     }
@@ -99,19 +99,19 @@
                   @if (isStore()) {
                     @if (product.state === 'at_distributor') {
                       <button class="btn btn-sm btn-action"
-                        [disabled]="workflowLoading() === '/products/' + product.id + '/accept-at-store'"
+                        [disabled]="isActionLoading(product.id, 'accept-at-store')"
                         (click)="promptInput(product.id, 'storeId')">
                         Accept at Store
                       </button>
                     }
                     @if (product.state === 'at_store') {
                       <button class="btn btn-sm btn-action"
-                        [disabled]="workflowLoading() === '/products/' + product.id + '/mark-sold'"
-                        (click)="doAction('/products/' + product.id + '/mark-sold')">
+                        [disabled]="isActionLoading(product.id, 'mark-sold')"
+                        (click)="markSold(product)">
                         Mark Sold
                       </button>
                       <button class="btn btn-sm btn-action"
-                        [disabled]="workflowLoading() === '/products/' + product.id + '/return-to-distributor'"
+                        [disabled]="isActionLoading(product.id, 'return-to-distributor')"
                         (click)="promptInput(product.id, 'reason')">
                         Return to Distributor
                       </button>

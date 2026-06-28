@@ -2,6 +2,19 @@ import { Component, inject, computed } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
+interface NavItem {
+  key: 'products' | 'distributors' | 'stores' | 'suppliers';
+  path: string;
+  label: string;
+}
+
+const ALL_NAV_ITEMS: NavItem[] = [
+  { key: 'products', path: '/products', label: 'Products' },
+  { key: 'distributors', path: '/distributors', label: 'Distributors' },
+  { key: 'stores', path: '/stores', label: 'Stores' },
+  { key: 'suppliers', path: '/suppliers', label: 'Suppliers' }
+];
+
 @Component({
   selector: 'app-layout',
   standalone: true,
@@ -14,11 +27,23 @@ export class LayoutComponent {
 
   user = computed(() => this.auth.currentUser());
 
-  showUsers = computed(() => this.auth.hasRole('admin'));
-  showProducts = computed(() => this.auth.hasRole('store_operator', 'supplier_operator', 'distributor_operator'));
-  showDistributors = computed(() => this.auth.hasRole('moderator'));
-  showStores = computed(() => this.auth.hasRole('moderator'));
-  showSuppliers = computed(() => this.auth.hasRole('moderator'));
+  navItems = computed<NavItem[]>(() => {
+    if (this.auth.hasRole('admin')) {
+      return ALL_NAV_ITEMS;
+    }
+    const items: NavItem[] = [];
+    if (this.auth.hasRole('store_operator', 'supplier_operator', 'distributor_operator')) {
+      items.push({ key: 'products', path: '/products', label: 'Products' });
+    }
+    if (this.auth.hasRole('moderator')) {
+      items.push(
+        { key: 'distributors', path: '/distributors', label: 'Distributors' },
+        { key: 'stores', path: '/stores', label: 'Stores' },
+        { key: 'suppliers', path: '/suppliers', label: 'Suppliers' }
+      );
+    }
+    return items;
+  });
 
   logout() {
     this.auth.logout();

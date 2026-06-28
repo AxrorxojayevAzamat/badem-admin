@@ -1,6 +1,6 @@
 import { Component, inject, signal, input, output, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
-import { ApiService } from '../../../core/services/api.service';
+import { ProductsService } from '../../../core/services/products.service';
 import { Product } from '../../../core/models';
 import { ModalComponent } from '../../../shared/modal/modal.component';
 
@@ -12,7 +12,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
   styleUrl: './product-form.component.scss'
 })
 export class ProductFormComponent implements OnInit {
-  private api = inject(ApiService);
+  private productsService = inject(ProductsService);
 
   product = input<Product | null>(null);
   saved = output<void>();
@@ -52,8 +52,8 @@ export class ProductFormComponent implements OnInit {
     const body = this.form.value;
     const p = this.product();
     const req = p
-      ? this.api.patch(`/products/${p.id}`, body)
-      : this.api.post('/products', body);
+      ? this.productsService.update(p.id, body)
+      : this.productsService.create(body);
 
     req.subscribe({
       next: () => {
