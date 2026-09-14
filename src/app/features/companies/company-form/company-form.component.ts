@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, input, output, signal, effect } from '@angular/core';
+import { Component, inject, input, output, signal, effect } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { CompanyService } from '../../../core/services/company.service';
 import { StoresService } from '../../../core/services/stores.service';
@@ -11,8 +11,6 @@ type CompanyType = 'stores' | 'distributors' | 'suppliers';
 
 @Component({
   selector: 'app-company-form',
-  standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ReactiveFormsModule, ModalComponent],
   templateUrl: './company-form.component.html',
   styleUrl: './company-form.component.scss'

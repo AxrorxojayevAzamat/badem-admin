@@ -8,7 +8,6 @@ import { ProductFormComponent } from '../product-form/product-form.component';
 
 @Component({
   selector: 'app-products-list',
-  standalone: true,
   imports: [ProductFormComponent, DecimalPipe],
   templateUrl: './products-list.component.html',
   styleUrl: './products-list.component.scss'

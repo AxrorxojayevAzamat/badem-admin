@@ -3,7 +3,6 @@ import { CompaniesListComponent } from '../companies/companies-list/companies-li
 
 @Component({
   selector: 'app-suppliers',
-  standalone: true,
   imports: [CompaniesListComponent],
   template: `<app-companies-list type="suppliers" />`
 })

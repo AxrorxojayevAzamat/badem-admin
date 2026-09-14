@@ -1,7 +1,7 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
+import { ApiService } from './api.service';
 import { Role } from '../models';
 
 interface JwtPayload {
@@ -13,7 +13,7 @@ interface JwtPayload {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private http = inject(HttpClient);
+  private api = inject(ApiService);
   private router = inject(Router);
   private readonly TOKEN_KEY = 'access_token';
 
@@ -42,7 +42,7 @@ export class AuthService {
   }
 
   login(email: string, password: string) {
-    return this.http.post<{ access_token: string }>('http://localhost:3000/auth/login', { email, password }).pipe(
+    return this.api.post<{ access_token: string }>('/auth/login', { email, password }).pipe(
       tap(res => {
         localStorage.setItem(this.TOKEN_KEY, res.access_token);
         this.currentUser.set(this.decodeToken(res.access_token));
@@ -51,7 +51,7 @@ export class AuthService {
   }
 
   register(email: string, password: string, role: Role) {
-    return this.http.post<{ access_token: string }>('http://localhost:3000/auth/register', { email, password, role }).pipe(
+    return this.api.post<{ access_token: string }>('/auth/register', { email, password, role }).pipe(
       tap(res => {
         localStorage.setItem(this.TOKEN_KEY, res.access_token);
         this.currentUser.set(this.decodeToken(res.access_token));

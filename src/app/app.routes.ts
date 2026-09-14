@@ -9,6 +9,7 @@ import { ProductsListComponent } from './features/products/products-list/product
 import { DistributorsComponent } from './features/distributors/distributors.component';
 import { StoresComponent } from './features/stores/stores.component';
 import { SuppliersComponent } from './features/suppliers/suppliers.component';
+import { UnauthorizedComponent } from './features/unauthorized/unauthorized.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -43,6 +44,7 @@ export const routes: Routes = [
         data: { roles: ['moderator'] }
       },
       { path: 'dashboard', component: DashboardComponent },
+      { path: 'unauthorized', component: UnauthorizedComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },

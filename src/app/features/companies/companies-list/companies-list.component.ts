@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, signal, input, OnInit } from '@angular/core';
+import { Component, inject, signal, input, OnInit } from '@angular/core';
 import { CompanyService } from '../../../core/services/company.service';
 import { StoresService } from '../../../core/services/stores.service';
 import { DistributorsService } from '../../../core/services/distributors.service';
@@ -10,8 +10,6 @@ type CompanyType = 'stores' | 'distributors' | 'suppliers';
 
 @Component({
   selector: 'app-companies-list',
-  standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CompanyFormComponent],
   templateUrl: './companies-list.component.html',
   styleUrl: './companies-list.component.scss'
