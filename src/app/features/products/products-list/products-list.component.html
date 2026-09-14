@@ -46,7 +46,7 @@
               <td>
                 @if (product.state) {
                   <span class="state-badge {{ stateClass(product.state) }}">
-                    {{ product.state?.replace('_', ' ') }}
+                    {{ product.state.replace('_', ' ') }}
                   </span>
                 } @else {
                   <span class="text-muted">—</span>

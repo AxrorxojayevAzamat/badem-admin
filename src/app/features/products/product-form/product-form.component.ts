@@ -6,7 +6,6 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
 
 @Component({
   selector: 'app-product-form',
-  standalone: true,
   imports: [ReactiveFormsModule, ModalComponent],
   templateUrl: './product-form.component.html',
   styleUrl: './product-form.component.scss'
